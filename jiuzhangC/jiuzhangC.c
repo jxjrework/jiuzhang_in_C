@@ -6,7 +6,14 @@
 // binary search:[LintCode] Last Position of Target
 int lastPosition(int nums[], int numSize, int target);
 // preorder traversal
-int* preorderTraversal(TreeNode *root);
+int* preorderTraversal(TreeNode *root, int* returnSize);
+// inorder traversal
+int* inorderTraversal(TreeNode *root, int* returnSize);
+// postorder traversal
+int* postorderTraversal(TreeNode *root, int* returnSize);
+// level order traversal
+int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize);
+
 
 int main()
 {
@@ -31,18 +38,42 @@ int main()
 	*/
 
 
-	// test preorder traverssal of binary tree
-	char* string = "{12#56789}";
-	int* res;
-	TreeNode* tmp;
-	tmp = deserialize(string, 10);
-	res = preorderTraversal(tmp);
-	for (int i = 0; i < 7; i++) {
-		printf("%d\n", res[i]);
-	}
+	//// test preorder/inorder/postorder traverssal of binary tree
+	//char string[] = "{12345#6#78##90}";
+	//int stringSize = sizeof(string) / sizeof(char) - 1;
+	//// printf("%d\n", stringSize);
+	//int* res;
+	//TreeNode* tmp;
+	//tmp = deserialize(string, stringSize);
+	//int* returnSize = malloc(sizeof(int));
+	//res = preorderTraversal(tmp, returnSize);
+	//for (int i = 0; i < (*returnSize); i++) {
+	//	printf("%d\n", res[i]);
+	//}
+	//printf("Return size: %d\n", *returnSize);
+	//free(returnSize);
 	
 
-
+	// test level order traverssal of binary tree
+	char string[] = "{12345#6#78##90}";
+	// sizeof includes '\n'
+	int stringSize = sizeof(string) / sizeof(char) - 1;
+	// printf("%d\n", stringSize);
+	int** res;
+	TreeNode* tmp;
+	tmp = deserialize(string, stringSize);
+	int* returnSize = malloc(sizeof(int));
+	int** columnSizes = malloc(sizeof(int*));
+	*columnSizes = malloc(sizeof(int));
+	res = levelOrder(tmp, columnSizes, returnSize);
+	for (int i = 0; i < (*returnSize); i++) {
+		for (int j = 0; j < ((*columnSizes)[i]); j++) {
+			printf("%d", res[i][j]);
+		}
+		printf("\n");
+	}
+	free(returnSize);
+	free(columnSizes);
 
     return 0;
 }
@@ -94,23 +125,24 @@ int lastPosition(int nums[], int numSize, int target) {
 * Return an array of size returnSize.
 * Note: The returned array must be malloced, assume caller calls free().
 */
-int* preorderTraversal(TreeNode *root) {
+int* preorderTraversal(TreeNode *root, int* returnSize) {
 	int* res = NULL;
 
 	// edge case
 	if (root == NULL)
 		return res;
 	
-	int returnSize = 0;
+	*returnSize = 0;
+
     // using stack
 	Stack *holder = malloc(sizeof(Stack));
 	Stack_Init(holder);
 	Stack_Push(holder, root);
 	while (holder->size != 0) {
 		TreeNode *tmp = Stack_Top(holder);
-		res = (int *)realloc(res, (returnSize + 1) * sizeof(int));
-		*(res + returnSize) = tmp->val;
-		returnSize += 1;
+		res = (int *)realloc(res, (*returnSize + 1) * sizeof(int));
+		res[*returnSize] = tmp->val;
+		*returnSize += 1;
 		Stack_Pop(holder);
 		if (tmp->right != NULL) {
 			Stack_Push(holder,tmp->right);
@@ -125,4 +157,165 @@ int* preorderTraversal(TreeNode *root) {
 	holder = NULL;
 
 	return res;
+}
+
+/*
+[LeetCode] 94. Binary Tree Inorder Traversal
+non-recursion
+/**
+* Return an array of size returnSize.
+* Note: The returned array must be malloced, assume caller calls free().
+*/
+int* inorderTraversal(TreeNode* root, int* returnSize) {
+	int* res = NULL;
+
+	// edge case
+	if (root == NULL)
+		return res;
+
+	*returnSize = 0;
+
+	// using stack
+	Stack *holder = malloc(sizeof(Stack));
+	Stack_Init(holder);
+	TreeNode* curr = root;
+	while ((curr != NULL) || (holder->size != 0)) {
+		//keep pushing left to the end
+		while (curr != NULL) {
+			Stack_Push(holder, curr);
+			curr = curr->left;
+		}
+		TreeNode* top = Stack_Top(holder);
+		// C++: res.push_back(top->val);
+		res = (int *)realloc(res, (*returnSize + 1) * sizeof(int));
+		res[*returnSize] = top->val;
+		*returnSize += 1;
+		Stack_Pop(holder);
+		curr = top->right;
+	}
+
+	// free the memory; clear the pointer
+	free(holder);
+	holder = NULL;
+
+	return res;
+}
+
+/*
+[LeetCode]145. Binary Tree Postorder Traversal
+non-recursion
+/**
+* Return an array of size returnSize.
+* Note: The returned array must be malloced, assume caller calls free().
+*/
+int* postorderTraversal(TreeNode *root, int* returnSize) {
+
+	int* res = NULL;
+
+	// edge case
+	if (root == NULL)
+		return res;
+
+	*returnSize = 0;
+
+	// using stack
+	Stack *holder = malloc(sizeof(Stack));
+	Stack_Init(holder);
+	TreeNode* curr = root;
+	TreeNode *prev = NULL;
+	while (curr != NULL || holder->size != 0) {
+		//keep pushing left to the end
+		while (curr != NULL) {
+			Stack_Push(holder, curr);
+			curr = curr->left;
+		}
+		curr = Stack_Top(holder);
+		//if it's leaf node or tracing up from right branch
+		// pop and save it to the result
+		if (curr->right == NULL || curr->right == prev) {
+			Stack_Pop(holder);
+			// C++: res.push_back(top->val);
+			res = (int *)realloc(res, (*returnSize + 1) * sizeof(int));
+			res[*returnSize] = curr->val;
+			*returnSize += 1;
+			prev = curr;
+			curr = NULL; // needed to skip the inner while loop in the next round
+		}
+		// tracing up from left branch
+		else {
+			curr = curr->right;
+		}
+	}
+	// free the memory; clear the pointer
+	free(holder);
+	holder = NULL;
+
+	return res;
+}
+
+// [LeetCode] 102. Binary Tree Level Order Traversal
+// Breadth First Search, BFS
+/**
+* Return an array of arrays of size *returnSize.
+* The sizes of the inner arrays are *columnSizes.
+* Note: Both returned array and columnSizes array must be malloced, assume caller calls free().
+*/
+int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize) {
+	int** res = NULL;
+
+	//edge case
+	if (root == NULL)
+		return res;
+
+	*returnSize = 0;
+	**columnSizes = 0;
+
+	// using queue
+	Queue* Q = malloc(sizeof(Queue));
+	Queue_Init(Q);
+	Queue_Push(Q, root);
+
+	int levelIndex = 0;
+	while (Q->size != 0) {
+		// remember this level's breadth, so inside for loop, only search the same level
+		int QSize = Q->size;
+		int* level = malloc(sizeof(int)); // store the vector of nodes in this level
+		int size = 0;
+		for (int i = 0; i < QSize; i++) {
+			TreeNode *head = Queue_Front(Q); Queue_Pop(Q); //get the first element, then pop it
+			
+			// C++: level.push_back(head->val);
+			level = (int*) realloc(level, (size + 1) * sizeof(int));
+			level[size] = head->val;
+			size += 1;
+			if (head->left != NULL) {
+				Queue_Push(Q, head->left);
+			}
+			if (head->right != NULL) {
+				Queue_Push(Q, head->right);
+			}
+		}
+		
+		*columnSizes = realloc(*columnSizes, (levelIndex + 1) * sizeof(int));
+		(*columnSizes)[levelIndex] = size;
+		levelIndex += 1;
+		
+		// res.push_back(level);
+		res = (int **)realloc(res, (*returnSize + 1) * sizeof(int*));
+	
+		res[*returnSize] = level;
+		*returnSize += 1;
+		int tmp = res[0][0];
+		/*free(level);
+		level = NULL;*/
+
+	}
+
+	// free the memory; clear the pointer
+	free(Q);
+	Q = NULL;
+	
+	
+	return res;
+
 }
