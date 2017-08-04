@@ -154,11 +154,13 @@
     <ClCompile Include="queue.c" />
     <ClCompile Include="stack.c" />
     <ClCompile Include="tree.c" />
+    <ClCompile Include="vector.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="queue.h" />
     <ClInclude Include="stack.h" />
     <ClInclude Include="tree.h" />
+    <ClInclude Include="vector.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

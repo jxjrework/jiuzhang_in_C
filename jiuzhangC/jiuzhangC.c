@@ -1,7 +1,8 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include "stack.h"
 #include "queue.h"
 #include "tree.h"
+#include "vector.h"
 
 // binary search:[LintCode] Last Position of Target
 int lastPosition(int nums[], int numSize, int target);
@@ -11,7 +12,7 @@ int* preorderTraversal(TreeNode *root, int* returnSize);
 int* inorderTraversal(TreeNode *root, int* returnSize);
 // postorder traversal
 int* postorderTraversal(TreeNode *root, int* returnSize);
-// level order traversal
+// level order traversal (BFS)
 int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize);
 
 
@@ -306,6 +307,7 @@ int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize) {
 		res[*returnSize] = level;
 		*returnSize += 1;
 		int tmp = res[0][0];
+		//!!DO NOT free level, because res[] =level, they are pointing to the same memory.
 		/*free(level);
 		level = NULL;*/
 
@@ -319,3 +321,34 @@ int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize) {
 	return res;
 
 }
+
+/*helper for subset (combination) recursion
+ 在 Nums 中找到所有以 subset 开头的的集合，并放到 results
+ *returnSize: size of results
+ int numSize: size of nums
+ int subsetSize: size of subset
+*/
+void helper(Vector** results,	int* returnSize, Vector* subset, Vector* nums, int start) {
+
+	//results.push_back(subset);
+	results = (Vector **)realloc(results, (*returnSize + 1) * sizeof(Vector*));
+	results[*returnSize] = subset;
+	*returnSize += 1;
+
+	for (int i = start; i < nums->size; i++) {
+		Vector_PushBack(subset, nums[i].data);
+		helper(results, returnSize, subset, nums, i + 1);
+		Vector_PopBack(subset);
+	}
+}
+
+//Vector** subsets(Vector* nums) {
+//	Vector** results;
+//	Vector* subset;
+//	int* returnSize;
+//	//using qsort?
+//	//sort(nums.begin(), nums.end());
+//	//helper(results, returnSize, subset, nums, 0);
+//
+//	return results;
+//}
