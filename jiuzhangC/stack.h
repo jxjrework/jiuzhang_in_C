@@ -25,3 +25,17 @@ TreeNode* Stack_Top(Stack *S);
 void Stack_Push(Stack *S, TreeNode *node);
 void Stack_Pop(Stack *S);
 
+// define stack
+struct Stack_Int {
+	// array of pointers pointing to the tree nodes
+	int     data[STACK_MAX];
+	int     size;
+};
+typedef struct Stack_Int Stack_Int;
+
+// define functions/methods
+void Stack_Int_Init(Stack *S);
+int Stack_Int_Top(Stack *S);
+void Stack_Int_Push(Stack *S, int node);
+void Stack_Int_Pop(Stack *S);
+

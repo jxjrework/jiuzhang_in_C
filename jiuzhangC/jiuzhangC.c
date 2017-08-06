@@ -3,6 +3,7 @@
 #include "queue.h"
 #include "tree.h"
 #include "vector.h"
+#include <stdbool.h>
 
 // binary search:[LintCode] Last Position of Target
 int lastPosition(int nums[], int numSize, int target);
@@ -14,6 +15,16 @@ int* inorderTraversal(TreeNode *root, int* returnSize);
 int* postorderTraversal(TreeNode *root, int* returnSize);
 // level order traversal (BFS)
 int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize);
+// Bubble sort
+void BubbleSort(Vector* x, int n);
+//subset helper
+void helper(Vector** results, int* returnSize, Vector* subset, Vector* nums, int start);
+//subset(DFS)
+Vector* subsets(Vector* nums, int* returnSize);
+Vector* subsets2(Vector* nums, int* returnSize);
+//permutations
+Vector* permute(Vector* nums, int* returnSize);
+
 
 
 int main()
@@ -55,26 +66,83 @@ int main()
 	//free(returnSize);
 	
 
-	// test level order traverssal of binary tree
-	char string[] = "{12345#6#78##90}";
-	// sizeof includes '\n'
-	int stringSize = sizeof(string) / sizeof(char) - 1;
-	// printf("%d\n", stringSize);
-	int** res;
-	TreeNode* tmp;
-	tmp = deserialize(string, stringSize);
-	int* returnSize = malloc(sizeof(int));
-	int** columnSizes = malloc(sizeof(int*));
-	*columnSizes = malloc(sizeof(int));
-	res = levelOrder(tmp, columnSizes, returnSize);
+	//// test level order traverssal of binary tree
+	//char string[] = "{12345#6#78##90}";
+	//// sizeof includes '\n'
+	//int stringSize = sizeof(string) / sizeof(char) - 1;
+	//// printf("%d\n", stringSize);
+	//int** res;
+	//TreeNode* tmp;
+	//tmp = deserialize(string, stringSize);
+	//int* returnSize = malloc(sizeof(int));
+	//int** columnSizes = malloc(sizeof(int*));
+	//*columnSizes = malloc(sizeof(int));
+	//res = levelOrder(tmp, columnSizes, returnSize);
+	//for (int i = 0; i < (*returnSize); i++) {
+	//	for (int j = 0; j < ((*columnSizes)[i]); j++) {
+	//		printf("%d", res[i][j]);
+	//	}
+	//	printf("\n");
+	//}
+	//free(returnSize);
+	//free(columnSizes);
+
+
+	//test subset
+	//int input[] = {6,1,7,3};
+	//Vector* nums = NULL;
+	//// initialize memory
+	//Vector temp;
+	//nums = &temp;
+	//Vector_Init(nums);
+	//nums->data = input;
+	//nums->size = sizeof(input) / sizeof(input[0]);
+	//Vector* res = NULL;
+	//int *returnSize;
+	//// get memeory for this pointer
+	//int tmp = 0;
+	//returnSize = &tmp;
+	//res = subsets2(nums, returnSize);
+	//for (int i = 0; i < (*returnSize); i++) {
+	//	// empty set
+	//	if (res[i].size == 0) {
+	//		printf("{}\n");
+	//		continue;
+	//	}
+
+	//	for (int j = 0; j < res[i].size; j++) {
+	//		printf("%d", res[i].data[j]);
+	//	}
+	//	printf("\n");
+	//}
+
+	//test permutations
+	int input[] = {6,1,7};
+	Vector* nums = NULL;
+	// initialize memory
+	Vector temp;
+	nums = &temp;
+	Vector_Init(nums);
+	nums->data = input;
+	nums->size = sizeof(input) / sizeof(input[0]);
+	Vector* res = NULL;
+	int *returnSize;
+	// get memeory for this pointer
+	int tmp = 0;
+	returnSize = &tmp;
+	res = permute(nums, returnSize);
 	for (int i = 0; i < (*returnSize); i++) {
-		for (int j = 0; j < ((*columnSizes)[i]); j++) {
-			printf("%d", res[i][j]);
+		// empty set
+		if (res[i].size == 0) {
+			printf("{}\n");
+			continue;
+		}
+
+		for (int j = 0; j < res[i].size; j++) {
+			printf("%d", res[i].data[j]);
 		}
 		printf("\n");
 	}
-	free(returnSize);
-	free(columnSizes);
 
     return 0;
 }
@@ -322,6 +390,48 @@ int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize) {
 
 }
 
+//冒泡排序
+//时间复杂度为 0(n*n); 
+void BubbleSort(Vector* x, int n) {
+	//int i, j;
+	//bool exchange; //记录交换标志
+	//int temp;
+	//for (i = 1; i < n; i++) {
+	//	exchange = false;
+	//	for (j = 0; j < n - i; j++)
+	//	{
+	//		if (x->data[j] > x->data[j + 1]) {
+	//			temp = x->data[j];
+	//			x->data[j] = x->data[j + 1];
+	//			x->data[j + 1] = temp;
+	//			exchange = true;
+	//		}
+	//	}
+	//	if (!exchange)
+	//		return;
+	//}
+
+	int m = n - 1;
+	int i, j;
+	int temp;
+
+	while (m > 0)
+	{
+		for (j = 0; j < m; j++)
+		{
+			i = 0;
+			if (x->data[j] > x->data[j + 1])
+			{
+				temp = x->data[j];
+				x->data[j] = x->data[j + 1];
+				x->data[j + 1] = temp;
+				i = j; //记录每次交换的位置
+			}
+		}
+		m = i;        //记录最后一个交换的位置
+	}
+
+}
 /*helper for subset (combination) recursion
  在 Nums 中找到所有以 subset 开头的的集合，并放到 results
  *returnSize: size of results
@@ -331,24 +441,140 @@ int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize) {
 void helper(Vector** results,	int* returnSize, Vector* subset, Vector* nums, int start) {
 
 	//results.push_back(subset);
-	results = (Vector **)realloc(results, (*returnSize + 1) * sizeof(Vector*));
-	results[*returnSize] = subset;
+	//initialize memory for Vector*
+	*results = realloc(*results, (*returnSize + 1) * sizeof(Vector));
+	//make a copy	
+	(*results)[*returnSize] = *subset;
+	//results[*returnSize] = subset;this is wrong; need copy not point to the same address
 	*returnSize += 1;
 
 	for (int i = start; i < nums->size; i++) {
-		Vector_PushBack(subset, nums[i].data);
+		Vector_PushBack(subset, nums->data[i]);
 		helper(results, returnSize, subset, nums, i + 1);
 		Vector_PopBack(subset);
 	}
+	
+	for (int i = 0; i < (*returnSize); i++) {
+		// empty set
+		if ((*results)[i].size == 0) {
+			printf("{}\n");
+			continue;
+		}
+
+		for (int j = 0; j < (*results)[i].size; j++) {
+			printf("%d", (*results)[i].data[j]);
+		}
+		printf("\n");
+	}
 }
 
-//Vector** subsets(Vector* nums) {
-//	Vector** results;
-//	Vector* subset;
-//	int* returnSize;
-//	//using qsort?
-//	//sort(nums.begin(), nums.end());
-//	//helper(results, returnSize, subset, nums, 0);
-//
-//	return results;
-//}
+Vector* subsets(Vector* nums, int* returnSize) {
+	Vector** results = malloc(sizeof(Vector*));
+	*results = malloc(sizeof(Vector));
+	Vector* subset;
+	Vector* res;
+	// Initialize memory
+	Vector tmp2;
+	subset = &tmp2;
+	Vector_Init(subset);
+	//using qsort?
+	BubbleSort(nums, nums->size);
+	helper(results, returnSize, subset, nums, 0);
+	res = *results;
+	return res;
+}
+
+Vector* subsets2(Vector* nums, int* returnSize) {
+	Vector* res;
+	res = malloc(sizeof(Vector));
+	for (int i = 0; i < (1 << (nums->size)); i++) {
+		Vector* subset;
+		// Initialize memory
+		Vector tmp;
+		subset = &tmp;
+		Vector_Init(subset);
+		for (int j = 0; j < nums->size; j++) {
+			// check whether the jth digit in i's binary representation is 1
+			if ((i & (1 << j)) != 0) {
+				Vector_PushBack(subset, nums->data[j]);
+			}
+		}
+		res = realloc(res, (*returnSize + 1) * sizeof(Vector));
+		res[*returnSize] = *subset;
+		*returnSize += 1;
+	}
+	return res;
+}
+
+/*
+Purmuations
+no duplicatged numbers
+removing the duplicates requires sorting
+*/
+Vector* permute(Vector* nums, int* returnSize) {
+	Vector* permutations;
+	permutations = malloc(sizeof(Vector));
+	permutations->size = 0;
+
+	if (nums->size == 0) {
+		return permutations;
+	}
+	
+	int n = nums->size;
+	Stack_Int* stack = malloc(sizeof(Stack_Int));
+	Stack_Int_Init(stack);
+	bool* inStack;
+	inStack = calloc(nums->size, sizeof(bool));
+	for (int i = 0; i < n; i++) {
+		inStack[i] = false;
+	}
+
+	Stack_Int_Push(stack, -1);
+	while (stack->size != 0) {
+		// pop the last 
+		int last = Stack_Int_Top(stack);
+		Stack_Int_Pop(stack);
+		if (last != -1) {
+			inStack[last] = false;
+		}
+
+		// increase the last, find the next bigger & avaiable number
+		int next = -1;
+		for (int i = last + 1; i < n; i++) {
+			if (inStack[i] == false) {
+				next = i;
+				break;
+			}
+		}
+		if (next == -1) {
+			continue;
+		}
+
+		// generate the next permutation
+		Stack_Int_Push(stack, next);
+		inStack[next] = true;
+		for (int i = 0; i < n; i++) {
+			if (!inStack[i]) {
+				Stack_Int_Push(stack,i);
+				inStack[i] = true;
+			}
+		}
+
+		// generate real permutation from index
+		Vector permutation;
+		Vector_Init(&permutation);
+		for (int i = 0; i < n; i++) {
+			Vector_PushBack(&permutation, nums->data[stack->data[i]]);
+		}
+
+		permutations = realloc(permutations, (*returnSize + 1) * sizeof(Vector));
+		permutations[*returnSize] = permutation;
+		*returnSize += 1;
+
+	}
+
+	free(stack);
+	free(inStack);
+
+	return permutations;
+}
