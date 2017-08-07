@@ -2,9 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define VECTOR_MAX 100
+
 // define vector
 struct Vector {
-	int*     data;
+	int     data[VECTOR_MAX];
 	int     size;
 };
 typedef struct Vector Vector;

@@ -19,8 +19,9 @@ int** levelOrder(TreeNode* root, int** columnSizes, int* returnSize);
 void BubbleSort(Vector* x, int n);
 //subset helper
 void helper(Vector** results, int* returnSize, Vector* subset, Vector* nums, int start);
-//subset(DFS)
+//subset(DFS) recursive
 Vector* subsets(Vector* nums, int* returnSize);
+//subset(DFS) non-recursive
 Vector* subsets2(Vector* nums, int* returnSize);
 //permutations
 Vector* permute(Vector* nums, int* returnSize);
@@ -29,25 +30,25 @@ Vector* permute(Vector* nums, int* returnSize);
 
 int main()
 {
-	/*// test binary search
-	int nums[10] = { 0,1,1,1,3,4,5,5,6,7 };
-	int res;
+	//// test binary search
+	//int nums[10] = { 0,1,1,1,3,4,5,5,6,7 };
+	//int res;
 
-	// Get the array size
-	int numSize = sizeof(nums) / sizeof(nums[0]);
-	res = lastPosition(nums, numSize, 5);
-	printf("%d\n", res);
-	*/
+	//// Get the array size
+	//int numSize = sizeof(nums) / sizeof(nums[0]);
+	//res = lastPosition(nums, numSize, 5);
+	//printf("%d\n", res);
+	
 
-	/*// test serialization/deserialization
-	char* string = "{12#5678#9##321}";
-	char* res;
-	TreeNode* tmp;
-	tmp = deserialize(string, 16);
-	printf("%d\n", tmp->left->val);
-	res = serialize(tmp);
-	printf("%s\n", res);
-	*/
+	//// test serialization/deserialization
+	//char* string = "{12#5678#9##321}";
+	//char* res;
+	//TreeNode* tmp;
+	//tmp = deserialize(string, 16);
+	//printf("%d\n", tmp->left->val);
+	//res = serialize(tmp);
+	//printf("%s\n", res);
+	
 
 
 	//// test preorder/inorder/postorder traverssal of binary tree
@@ -89,20 +90,21 @@ int main()
 
 
 	//test subset
-	//int input[] = {6,1,7,3};
+	//int input[] = {6,2,3};
 	//Vector* nums = NULL;
 	//// initialize memory
 	//Vector temp;
 	//nums = &temp;
 	//Vector_Init(nums);
-	//nums->data = input;
 	//nums->size = sizeof(input) / sizeof(input[0]);
+	//for (int i = 0; i < nums->size; i++)
+	//	nums->data[i] = input[i];
 	//Vector* res = NULL;
 	//int *returnSize;
 	//// get memeory for this pointer
 	//int tmp = 0;
 	//returnSize = &tmp;
-	//res = subsets2(nums, returnSize);
+	//res = subsets(nums, returnSize);
 	//for (int i = 0; i < (*returnSize); i++) {
 	//	// empty set
 	//	if (res[i].size == 0) {
@@ -115,6 +117,10 @@ int main()
 	//	}
 	//	printf("\n");
 	//}
+	/*for (int j = 0; j < res[7].size; j++) {
+		printf("%d", res[7].data[1]);
+	}*/
+
 
 	//test permutations
 	int input[] = {6,1,7};
@@ -123,8 +129,9 @@ int main()
 	Vector temp;
 	nums = &temp;
 	Vector_Init(nums);
-	nums->data = input;
 	nums->size = sizeof(input) / sizeof(input[0]);
+	for (int i = 0; i < nums->size; i++)
+		nums->data[i] = input[i];
 	Vector* res = NULL;
 	int *returnSize;
 	// get memeory for this pointer
@@ -453,19 +460,6 @@ void helper(Vector** results,	int* returnSize, Vector* subset, Vector* nums, int
 		helper(results, returnSize, subset, nums, i + 1);
 		Vector_PopBack(subset);
 	}
-	
-	for (int i = 0; i < (*returnSize); i++) {
-		// empty set
-		if ((*results)[i].size == 0) {
-			printf("{}\n");
-			continue;
-		}
-
-		for (int j = 0; j < (*results)[i].size; j++) {
-			printf("%d", (*results)[i].data[j]);
-		}
-		printf("\n");
-	}
 }
 
 Vector* subsets(Vector* nums, int* returnSize) {
@@ -486,22 +480,42 @@ Vector* subsets(Vector* nums, int* returnSize) {
 
 Vector* subsets2(Vector* nums, int* returnSize) {
 	Vector* res;
-	res = malloc(sizeof(Vector));
+	res = calloc(1 << (nums->size), sizeof(Vector));
+	*returnSize = 1 << (nums->size);
+	//res = malloc(sizeof(Vector));
 	for (int i = 0; i < (1 << (nums->size)); i++) {
 		Vector* subset;
 		// Initialize memory
 		Vector tmp;
+		//tmp.data[0] = 0;
+		//tmp.size = 0;
 		subset = &tmp;
 		Vector_Init(subset);
+		int m = 0;
 		for (int j = 0; j < nums->size; j++) {
 			// check whether the jth digit in i's binary representation is 1
+			
 			if ((i & (1 << j)) != 0) {
 				Vector_PushBack(subset, nums->data[j]);
+				/*if (i == 7) {
+					printf("subset: %d at %d from nums:%d\n", subset->data[m], m, j);
+					m++;
+				}*/
 			}
+			/*if (i == 7) {
+				printf("subset: %d at 1\n", subset->data[1]);
+			}*/
 		}
-		res = realloc(res, (*returnSize + 1) * sizeof(Vector));
-		res[*returnSize] = *subset;
-		*returnSize += 1;
+		//res = realloc(res, (*returnSize + 1) * sizeof(Vector));
+		//res[*returnSize] = *subset;
+		//*returnSize += 1;
+		/*if (i == 7) {
+			printf("subset: %d at 1\n", subset->data[1]);
+		}*/
+		res[i] = *subset;
+		/*if (i == 7) {
+			printf("subset: %d at 1\n", subset->data[1]);
+		}*/
 	}
 	return res;
 }
