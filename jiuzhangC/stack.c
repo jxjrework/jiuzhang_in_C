@@ -64,7 +64,7 @@ void Stack_Int_Push(Stack_Int *S, int node)
 }
 
 // pop
-void Stack_Int_Pop(Stack *S)
+void Stack_Int_Pop(Stack_Int *S)
 {
 	if (S->size == 0)
 		fprintf(stderr, "Error: stack empty\n");

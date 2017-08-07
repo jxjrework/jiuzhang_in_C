@@ -123,7 +123,7 @@ int main()
 
 
 	//test permutations
-	int input[] = {6,1,7};
+	int input[] = {6,1,7,8};
 	Vector* nums = NULL;
 	// initialize memory
 	Vector temp;
